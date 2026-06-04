@@ -1,0 +1,1187 @@
+{
+  "product": "PennyPilot",
+  "editor": "HOLCO",
+  "transport": "MCP (HTTP Streamable)",
+  "endpoint": "https://apps.holco.co/mcp/pennylane/mcp/v1",
+  "tool_count": 40,
+  "read_only_tools": 36,
+  "side_effect_tools": 4,
+  "tools": [
+    {
+      "name": "get_pennypilot_account",
+      "title": "Lire le compte PennyPilot connecté",
+      "description": "Retourne le compte cabinet, le statut, le plan, la connexion Pennylane et les règles cabinet. À appeler au début d'une conversation ChatGPT/Mistral/Claude pour éviter de redemander les mêmes informations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "lookup_legifrance_article",
+      "title": "Consulter un article Légifrance officiel",
+      "description": "POC veille juridique : vérifie une URL ou un identifiant article Légifrance officiel, récupère les métadonnées publiques disponibles et retourne une synthèse sourcée. Ne remplace pas la consultation juridique ; l'URL officielle doit être relue par le cabinet.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "article_url_or_id": {
+            "type": "string",
+            "description": "URL Légifrance officielle ou identifiant article commençant par LEGIARTI."
+          },
+          "question": {
+            "type": "string",
+            "description": "Question métier optionnelle du cabinet."
+          }
+        },
+        "required": [
+          "article_url_or_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "about_pennypilot",
+      "title": "À propos de PennyPilot",
+      "description": "RÉPONSE OBLIGATOIRE pour toute question générique sur PennyPilot (présentation, capacités, fonctionnement, \"à quoi sers-tu\"). NE JAMAIS répondre en énumérant les noms techniques des outils ni en composant une liste depuis leurs descriptions. APPELER CET OUTIL pour retourner la carte d'accueil métier en français déjà rédigée pour les experts-comptables.\n\nPrésente PennyPilot, sa couche métier cabinet et ses capacités d'analyse comptable read-only sur Pennylane, en termes business (pas en noms d'outils).\n\nÀ UTILISER quand l'utilisateur :\n- Démarre une nouvelle conversation (\"Bonjour\", \"Salut\", \"Hello\")\n- Demande \"Que peux-tu faire ?\", \"Présente-toi\", \"À quoi sers-tu ?\", \"C'est quoi PennyPilot ?\"\n- Demande \"Comment ça marche ?\", \"Aide-moi\", \"Aide\", \"Help\"\n- Demande \"Quels outils as-tu ?\", \"Quelles sont tes capacités ?\", \"Quel est ton usage ?\"\n- A besoin de comprendre les capacités avant de poser une question métier\n\nNE PAS UTILISER :\n- Si l'utilisateur a déjà posé une question métier précise, appeler directement le bon outil.\n- Si l'utilisateur poursuit une analyse en cours.\n\nNe prend aucun paramètre.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "start_pennypilot",
+      "title": "Démarrer une session PennyPilot",
+      "description": "Démarre PennyPilot après installation : vérifie l'installation, explique le mode read-only, puis propose les premières commandes utiles.\n\nÀ utiliser quand l'utilisateur dit :\n- \"PennyPilot, démarre\"\n- \"PennyPilot, commence\"\n- \"J'ai installé PennyPilot\"\n- \"Aide-moi à démarrer\"\n- \"Que dois-je faire en premier ?\"",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "diagnose_pennypilot_setup",
+      "title": "Diagnostiquer la configuration PennyPilot",
+      "description": "Vérifie l'installation PennyPilot après ajout dans Claude Desktop : clé HOLCO, token Pennylane, accès au dossier via /me, identité du dossier, et disponibilité des scopes quand Pennylane les expose.\n\nÀ utiliser quand l'utilisateur dit :\n- \"PennyPilot, vérifie mon installation\"\n- \"J'ai installé PennyPilot\"\n- \"Est-ce que mon token fonctionne ?\"\n- \"Pourquoi PennyPilot ne marche pas ?\"\n- \"Diagnostic setup\"\n\nNe révèle jamais la clé HOLCO ni le token Pennylane.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "explain_pennypilot_flow",
+      "title": "Expliquer le fonctionnement de PennyPilot",
+      "description": "Explique simplement ce qui se passe quand l'utilisateur écrit une demande dans Claude avec PennyPilot installé : Claude décide d'appeler un outil, PennyPilot interroge Pennylane en lecture seule, puis Claude rédige la réponse.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Comment fonctionne PennyPilot ?\"\n- \"Est-ce que PennyPilot lit toute ma conversation ?\"\n- \"Est-ce que PennyPilot prend la main sur Claude ?\"\n- \"Que se passe-t-il quand j'écris une question ?\"\n- \"Mes données passent-elles par HOLCO ?\"",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "show_cabinet_config",
+      "title": "Afficher la configuration du cabinet",
+      "description": "Affiche les règles cabinet configurables actuellement actives dans PennyPilot : seuils de matérialité (branchés), sources autorisées + typologies + ton (déclarés). Première brique de la couche métier cabinet (v0.3.0).\n\nÀ utiliser quand l'utilisateur :\n- Demande \"Quelles sont les règles cabinet actives ?\", \"Affiche la config cabinet\"\n- Veut vérifier les seuils qui pilotent la pré-révision\n- Veut comprendre quelles sources externes sont autorisées\n- Diagnostique un comportement inattendu de `generate_revision_triage`\n\nNe prend aucun paramètre. Lecture seule pure (aucun appel Pennylane).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "generate_charte_ia_cabinet",
+      "title": "Générer la charte IA du cabinet",
+      "description": "Génère une charte d'usage IA cabinet prête à personnaliser : couvre l'AI Act (art. 4 AI Literacy + art. 50 transparence), les obligations CSOEC (secret professionnel + référent IA), les outils autorisés vs shadow IA, et l'audit trail des décisions assistées. Template structuré en 7 sections. Réutilise les obligations de l'art. 226-13 du Code pénal.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cabinet_name": {
+            "type": "string",
+            "description": "Nom du cabinet pour personnaliser la charte. Si absent, utilise le nom du compte PennyPilot."
+          },
+          "cabinet_size": {
+            "type": "string",
+            "enum": [
+              "solo",
+              "petit",
+              "moyen",
+              "grand"
+            ],
+            "description": "Taille du cabinet : solo (1 EC), petit (2-10), moyen (11-50), grand (50+). Adapte la gouvernance suggérée."
+          },
+          "tools_authorized": {
+            "type": "string",
+            "description": "Liste libre des outils IA autorisés (séparés par virgule). Exemple : \"ChatGPT Business, Claude Pro, PennyPilot\". Si absent, utilise une liste générique recommandée."
+          },
+          "tools_forbidden": {
+            "type": "string",
+            "description": "Liste libre des outils IA interdits (séparés par virgule). Exemple : \"ChatGPT gratuit, Gemini gratuit\". Si absent, indique simplement les comptes personnels."
+          },
+          "referent_ia_name": {
+            "type": "string",
+            "description": "Nom du référent IA cabinet désigné. Si absent, indique \"À désigner\"."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "diagnose_ai_transparency",
+      "title": "Diagnostiquer la transparence IA du cabinet",
+      "description": "Génère un diagnostic de conformité AI Act (art. 50-55) sur la transparence, l'explicabilité et la traçabilité de la réponse précédente ou de la session.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "previous_response_context": {
+            "type": "string",
+            "description": "Contexte de la réponse précédente à diagnostiquer (résumé court de quel tool a été appelé). Optionnel, si absent, fournit un diagnostic générique sur la session courante."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "find_unpaid_customer_invoices",
+      "title": "Trouver les factures clients impayées",
+      "description": "Liste les factures clients **non payées** dont l'échéance est dépassée pour le dossier comptable courant Pennylane. Renvoie un résumé chiffré (nombre de factures, montant total TTC dû, classement des clients par montant en retard), un signalement spécifique des factures avec plus de 60 jours de retard, et le détail des 20 plus anciennes.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Quelles factures clients sont en retard ?\"\n- \"Combien d'argent on attend des clients ?\"\n- \"Liste les impayés\"\n- \"Qui me doit de l'argent ?\"\n- \"Factures en retard de plus de X jours\"\n- \"Top 10 / Top 20 des clients en retard\" (paramètre top_n)\n\nNe PAS utiliser pour :\n- Les factures **fournisseurs** non payées (à venir : find_unpaid_supplier_invoices)\n- Le détail d'**une seule facture** (utiliser un autre tool quand il existera)\n- Un calcul de chiffre d'affaires ou de marge (utiliser get_company_pnl)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days_overdue": {
+            "type": "number",
+            "description": "Seuil minimum de jours de retard. Optionnel, défaut 0 (toutes les factures avec échéance passée). Mettre 30 pour filtrer les factures avec plus de 30 jours de retard, etc."
+          },
+          "top_n": {
+            "type": "number",
+            "description": "Nombre de clients à afficher dans le classement par montant dû. Optionnel, défaut 10. Borné entre 1 et 50."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_company_pnl",
+      "title": "Lire le compte de résultat (P&L) d'une société",
+      "description": "Compte de résultat d'une entreprise pour un mois, un trimestre ou une année, présenté en **Soldes Intermédiaires de Gestion (SIG)** : marge commerciale, production de l'exercice, valeur ajoutée, EBE, résultat d'exploitation, courant, exceptionnel et net, avec comparatif vs période précédente et détection d'anomalies.\n\nMode prise en main : si le contexte cabinet n'est pas fourni, lance quand même le P&L avec contexte auto et hypothèses explicites. Ne bloque pas sur des questions préalables ; pose les questions de validation en fin de réponse.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Donne-moi le P&L d'avril 2026\"\n- \"Compte de résultat du dossier\" / \"les SIG du dossier\"\n- \"Quelle a été la marge / la valeur ajoutée / l'EBE sur le T1 ?\"\n\nNe PAS utiliser pour :\n- Les factures impayées (utiliser find_unpaid_customer_invoices)\n- Le détail compte par compte (utiliser get_chart_of_accounts ou browse_account_ledger)\n- Bilan / trésorerie (futur tool v0.3)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "period": {
+            "type": "string",
+            "description": "Période : \"2026-04\" (mois), \"2026-Q1\" (trimestre), \"2026\" (année). Défaut : mois précédent."
+          },
+          "dossier_context": {
+            "type": "string",
+            "description": "Contexte cabinet établi avec l'utilisateur. Optionnel : si absent ou trop court, PennyPilot utilise un contexte auto et indique ses hypothèses."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_trial_balance",
+      "title": "Lire la balance générale du dossier",
+      "description": "Balance générale (trial balance) du dossier sur une période : pour chaque compte, total débit, total crédit et solde, avec sous-totaux par classe PCG (1 à 8) et total général. C'est la vue de référence en révision et en clôture.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Donne-moi la balance générale 2025\"\n- \"Solde des comptes 70 sur l'exercice\" (account_prefix \"70\")\n- \"Balance des comptes de tiers\" (prefix \"4\"), \"de trésorerie\" (prefix \"5\")\n- \"Quel est le solde du compte 706 sur le T1 ?\"\n- \"Balance comparée N vs N-1\"\n\nParamètres :\n- `period` : \"2026\" (année), \"2026-Q1\" (trimestre) ou \"2026-04\" (mois). Défaut : mois précédent.\n- `period_start` / `period_end` (optionnels) : plage de dates personnalisée au format YYYY-MM-DD. Si les deux sont fournis, ils priment sur `period` (ex : balance du 2026-01-15 au 2026-03-20). Le comparatif N-1 n'est pas calculé sur une plage personnalisée.\n- `account_prefix` (optionnel) : restreint aux comptes commençant par ce préfixe (ex \"70\", \"401\", \"5\").\n- `compare` (optionnel) : true pour ajouter un comparatif des soldes par classe vs la période N-1.\n\nNe PAS utiliser pour :\n- Le détail des écritures d'un compte (utiliser browse_account_ledger)\n- Le compte de résultat / la marge (utiliser get_company_pnl)\n- L'export FEC réglementaire complet (utiliser generate_fec_export)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "period": {
+            "type": "string",
+            "description": "Période : \"YYYY\" (année), \"YYYY-Qn\" (trimestre) ou \"YYYY-MM\" (mois). Défaut : mois précédent."
+          },
+          "period_start": {
+            "type": "string",
+            "description": "Début de plage personnalisée (YYYY-MM-DD). Si fourni avec period_end, prime sur `period`."
+          },
+          "period_end": {
+            "type": "string",
+            "description": "Fin de plage personnalisée (YYYY-MM-DD). Si fourni avec period_start, prime sur `period`."
+          },
+          "account_prefix": {
+            "type": "string",
+            "description": "Préfixe de numéro de compte optionnel (ex '70', '401', '5'). Sans filtre, balance complète toutes classes."
+          },
+          "compare": {
+            "type": "boolean",
+            "description": "Ajouter un comparatif des soldes par classe vs la période N-1."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_bank_transactions",
+      "title": "Lister les opérations bancaires",
+      "description": "Liste les **opérations bancaires** d'un dossier sur une période : date, libellé, compte bancaire, catégorie analytique, et montant en encaissement / décaissement, avec totaux et flux net de trésorerie.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Mouvements bancaires de mars 2026\"\n- \"Encaissements / décaissements du mois\"\n- \"Opérations sur le compte X\"\n- \"Flux de trésorerie sur le trimestre\"\n\nParamètres :\n- `period` : \"2026\" (année), \"2026-Q1\" (trimestre) ou \"2026-04\" (mois). Défaut : mois précédent.\n- `bank_account_id` (optionnel) : restreint à un compte bancaire précis.\n\nNe PAS utiliser pour :\n- La liste des comptes / soldes (utiliser list_bank_accounts)\n- Le grand livre du compte 512 (utiliser browse_account_ledger)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "period": {
+            "type": "string",
+            "description": "Période : \"YYYY\", \"YYYY-Qn\" ou \"YYYY-MM\". Défaut : mois précédent."
+          },
+          "bank_account_id": {
+            "type": "string",
+            "description": "Filtre optionnel sur l’identifiant d’un compte bancaire."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_bank_accounts",
+      "title": "Lister les comptes bancaires",
+      "description": "Liste les **comptes bancaires** du dossier Pennylane : nom du compte, établissement, IBAN (masqué), devise et solde courant. Donne une vue rapide de la position de trésorerie par compte.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Quels comptes bancaires a le dossier ?\"\n- \"Quel est le solde en banque ?\" / \"Position de trésorerie\"\n- \"Liste des banques du client\"\n\nNe PAS utiliser pour :\n- Le détail des opérations bancaires (utiliser get_bank_transactions)\n- Les comptes comptables 512 du grand livre (utiliser browse_account_ledger / get_trial_balance)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_analytical_categories",
+      "title": "Lister le plan analytique",
+      "description": "Liste le **plan analytique** du dossier Pennylane : les axes analytiques (groupes de catégories) et les catégories rattachées. Sert à comprendre comment le dossier ventile son activité (par projet, établissement, activité, etc.).\n\nÀ utiliser quand l'utilisateur demande :\n- \"Quels axes analytiques a le dossier ?\"\n- \"Liste les catégories analytiques\"\n- \"Comment est structurée la compta analytique ?\"\n\nNe PAS utiliser pour :\n- Les montants ventilés par catégorie (à venir : drill-down par écriture)\n- Le plan comptable général (utiliser get_chart_of_accounts)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_invoice_detail",
+      "title": "Lire le détail d'une facture",
+      "description": "Détail complet d'une **facture** (client ou fournisseur) : en-tête (numéro, date, tiers, montants HT/TTC, statut, échéance), lignes de facturation, paiements enregistrés et transactions bancaires rapprochées.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Détail de la facture client 42\"\n- \"Lignes de la facture fournisseur X\"\n- \"Cette facture est-elle payée ? rapprochée ?\"\n\nParamètres :\n- `invoice_id` (requis) : identifiant de la facture.\n- `invoice_type` : \"customer\" (client, défaut) ou \"supplier\" (fournisseur).\n\nNe PAS utiliser pour :\n- La liste des factures impayées (utiliser find_unpaid_customer_invoices)\n- Le compte de résultat (utiliser get_company_pnl)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "description": "Identifiant de la facture Pennylane."
+          },
+          "invoice_type": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "supplier"
+            ],
+            "description": "Type de facture : \"customer\" (défaut) ou \"supplier\"."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        },
+        "required": [
+          "invoice_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_aged_balance",
+      "title": "Lire la balance âgée clients / fournisseurs",
+      "description": "**Balance âgée** (échéancier) clients ou fournisseurs : pour chaque tiers, l'encours ouvert ventilé par tranche d'ancienneté (0-30 / 31-60 / 61-90 / +90 jours), avec totaux par tranche.\n\nC'est la vraie balance âgée comptable : elle se base sur les **écritures non lettrées** des comptes de tiers (411 clients / 401 fournisseurs) = les postes réellement ouverts, et non sur la liste des factures.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Balance âgée clients\" / \"échéancier clients\"\n- \"Quels clients ont des créances de plus de 90 jours ?\"\n- \"Encours fournisseurs par ancienneté\"\n- \"Balance âgée du client 411DUPONT\" (utiliser account_prefix)\n\nParamètres :\n- `account_class` : \"customers\" (411), \"suppliers\" (401) ou \"both\" (défaut).\n- `account_prefix` (optionnel) : restreint à un préfixe de compte de tiers précis (ex \"411DUPONT\", \"4011\"). **Recommandé sur les gros dossiers** : le calcul devient instantané pour un tiers donné.\n- `reference_date` (optionnel) : date d'arrêté au format YYYY-MM-DD pour le calcul de l'ancienneté. Défaut : aujourd'hui.\n\nSur un dossier à très fort volume de postes ouverts, le calcul global peut être tronqué : l'outil renvoie alors une consigne (cibler un tiers via `account_prefix`, ou utiliser get_trial_balance pour le total d'encours sans ventilation par âge).\n\nNe PAS utiliser pour :\n- Les écritures à lettrer brutes (utiliser find_unlettered_entries)\n- La balance générale tous comptes (utiliser get_trial_balance)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "account_class": {
+            "type": "string",
+            "enum": [
+              "customers",
+              "suppliers",
+              "both"
+            ],
+            "description": "'customers' (411), 'suppliers' (401) ou 'both'. Défaut : both."
+          },
+          "account_prefix": {
+            "type": "string",
+            "description": "Préfixe de compte de tiers pour cibler un client/fournisseur précis (ex '411DUPONT'). Rend le calcul instantané sur les gros dossiers."
+          },
+          "reference_date": {
+            "type": "string",
+            "description": "Date d'arrêté ISO YYYY-MM-DD pour calculer l'ancienneté. Défaut : aujourd'hui."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_fec_export",
+      "title": "Générer le FEC du dossier",
+      "description": "Génère le **Fichier des Écritures Comptables (FEC) réglementaire DGFiP** pour un exercice complet du dossier Pennylane connecté.\n\n⚠️ **C'EST le FEC normé officiel**, conforme à l'arrêté **A47 A-1 du LPF (DGFiP)**, pas une approximation, pas un aperçu, pas une liste d'écritures. Le fichier produit est directement déposable en cas de contrôle fiscal (CGI art. L102-B), recevable par les auditeurs externes et les commissaires aux comptes. Il est généré via l'API Pennylane v2 (`POST /exports/fecs`) puis récupéré par polling : PennyPilot ne modifie aucune écriture comptable, l'appel crée seulement un job d'export technique côté Pennylane.\n\n**Toujours appeler ce tool** quand l'utilisateur demande un FEC, un Fichier des Écritures Comptables, un export comptable réglementaire ou un fichier pour le contrôle fiscal. Ce tool produit l'export officiel sans quitter la conversation : ne pas renvoyer l'utilisateur vers Pennylane natif.\n\n**Format produit** : texte UTF-8 avec **séparateur tabulation**. 18 champs normés : JournalCode, JournalLib, EcritureNum, EcritureDate, CompteNum, CompteLib, CompAuxNum, CompAuxLib, PieceRef, PieceDate, EcritureLib, Debit, Credit, EcritureLet, DateLet, ValidDate, Montantdevise, Idevise.\n\nExemples de demandes :\n- \"Sors-moi le FEC de l'exercice 2025\"\n- \"Prépare l'export FEC pour le contrôle fiscal\"\n- \"Génère le fichier des écritures comptables de cette année\"\n- \"Il me faut un FEC pour le commissaire aux comptes / la DGFiP / la liasse\"\n\nParamètres :\n- `fiscal_year_id` (optionnel) : identifiant interne Pennylane de l'exercice.\n- `fiscal_year_label` (optionnel) : label ou année, par exemple \"2025\" ou \"2026\".\n\nSi aucun paramètre n'est fourni, le tool prend automatiquement l'exercice clos le plus récent exploitable.\n\nRetourne : URL signée Pennylane pour téléchargement direct du FEC (valide environ 10 minutes), période, audit trail réglementaire (citation CGI L102-B + arrêté A47 A-1).\n\nNE PAS utiliser :\n- Pour analyser ou lister des écritures (utiliser browse_journal_entries / browse_account_ledger)\n- Pour exporter seulement quelques mois (le FEC officiel couvre un exercice complet)\n- Pour le grand livre formaté (utiliser generate_general_ledger_export en v0.5.1+)\n- Pour modifier la comptabilité : l'export ne modifie aucune écriture Pennylane.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "fiscal_year_id": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ],
+            "description": "ID interne Pennylane de l'exercice."
+          },
+          "fiscal_year_label": {
+            "type": "string",
+            "description": "Label ou année, par exemple \"2025\" ou \"2026\"."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "generate_general_ledger_export",
+      "title": "Générer le grand livre du dossier",
+      "description": "Génère l'**export du Grand Livre officiel** (toutes les écritures par compte) pour un exercice complet du dossier Pennylane connecté.\n\n⚠️ **C'EST l'export Grand Livre officiel produit via l'API Pennylane v2** (`POST /exports/general_ledgers`), pas une approximation ni une simple liste à l'écran. Le fichier est directement exploitable pour la révision, l'archivage ou la transmission au commissaire aux comptes. Il est récupéré par polling : PennyPilot ne modifie aucune écriture comptable, l'appel crée seulement un job d'export technique côté Pennylane.\n\n**Toujours appeler ce tool** quand l'utilisateur demande un grand livre exportable ou téléchargeable. Ce tool produit l'export officiel sans quitter la conversation : ne pas renvoyer l'utilisateur vers Pennylane natif.\n\nExemples de demandes :\n- \"Sors-moi le grand livre de l'exercice 2025\"\n- \"Export du grand livre complet\"\n- \"Le grand livre pour la révision / le CAC\"\n\nParamètres :\n- `fiscal_year_id` (optionnel) : identifiant interne Pennylane de l'exercice.\n- `fiscal_year_label` (optionnel) : label ou année, par exemple \"2025\".\n- `job_id` (optionnel) : reprend le polling d'un export déjà lancé, sans refaire de POST.\n\nSi aucun paramètre, prend automatiquement l'exercice clos le plus récent exploitable.\n\nRetourne : URL signée Pennylane (valide environ 10 min), période, audit trail. Aucune écriture comptable n'est modifiée.\n\nNE PAS utiliser :\n- Pour consulter quelques écritures à l'écran (utiliser browse_account_ledger / browse_journal_entries).\n- Pour le FEC réglementaire DGFiP (utiliser generate_fec_export).\n- Pour le grand livre analytique (utiliser generate_analytical_general_ledger_export).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "fiscal_year_id": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ],
+            "description": "ID interne Pennylane de l'exercice."
+          },
+          "fiscal_year_label": {
+            "type": "string",
+            "description": "Label ou année, par exemple \"2025\"."
+          },
+          "job_id": {
+            "type": "string",
+            "description": "ID de job Pennylane à reprendre sans recréer d'export."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "generate_analytical_general_ledger_export",
+      "title": "Générer le grand livre analytique du dossier",
+      "description": "Génère l'**export du Grand Livre analytique officiel** (écritures ventilées par axe / code analytique) pour un exercice complet du dossier Pennylane connecté.\n\n⚠️ **C'EST l'export grand livre analytique officiel produit via l'API Pennylane v2** (`POST /exports/analytical_general_ledgers`), pas une approximation. Utile pour l'analyse de gestion par centre de coût, projet ou activité. Il est récupéré par polling : PennyPilot ne modifie aucune écriture comptable, l'appel crée seulement un job d'export technique côté Pennylane.\n\n**Toujours appeler ce tool** quand l'utilisateur demande un grand livre analytique exportable. Ce tool produit l'export officiel sans quitter la conversation : ne pas renvoyer l'utilisateur vers Pennylane natif.\n\nExemples de demandes :\n- \"Sors-moi le grand livre analytique 2025\"\n- \"Export de la compta analytique par axe\"\n- \"Le grand livre ventilé par projet / centre de coût\"\n\nParamètres :\n- `fiscal_year_id` (optionnel) : identifiant interne Pennylane de l'exercice.\n- `fiscal_year_label` (optionnel) : label ou année, par exemple \"2025\".\n- `mode` (optionnel) : `in_line` (défaut, une ligne par ventilation) ou `in_column` (axes en colonnes).\n- `job_id` (optionnel) : reprend le polling d'un export déjà lancé, sans refaire de POST.\n\nSi aucun exercice n'est précisé, prend automatiquement l'exercice clos le plus récent exploitable.\n\nRetourne : URL signée Pennylane (valide environ 10 min), période, mode, audit trail. Aucune écriture comptable n'est modifiée.\n\nNE PAS utiliser :\n- Pour le grand livre comptable standard (utiliser generate_general_ledger_export).\n- Pour le FEC réglementaire (utiliser generate_fec_export).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "fiscal_year_id": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ],
+            "description": "ID interne Pennylane de l'exercice."
+          },
+          "fiscal_year_label": {
+            "type": "string",
+            "description": "Label ou année, par exemple \"2025\"."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "in_line",
+              "in_column"
+            ],
+            "description": "Présentation : in_line (défaut) ou in_column."
+          },
+          "job_id": {
+            "type": "string",
+            "description": "ID de job Pennylane à reprendre sans recréer d'export."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "generate_monthly_close_report",
+      "title": "Générer la note de clôture mensuelle",
+      "description": "Génère une **note de synthèse mensuelle complète** pour un dossier, prête à coller dans le livrable client. Chaîne plusieurs analyses : P&L, trésorerie clients, dépenses anormales (vs moyenne 3 mois), doublons fournisseurs, actions cabinet priorisées. Markdown structuré.\n\nMode prise en main : si le contexte cabinet n'est pas fourni, lance quand même une première synthèse avec contexte auto et hypothèses explicites. Ne bloque pas sur des questions préalables ; pose les questions de validation en fin de note.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Génère la note de synthèse de [mois]\"\n- \"Prépare la note mensuelle pour [mois] sur [client]\"\n- \"Bilan du mois clos\"\n\nNe PAS utiliser pour :\n- Une simple lecture du P&L (utiliser get_company_pnl, plus léger)\n- Le détail des factures impayées (utiliser find_unpaid_customer_invoices)\n- Plusieurs mois consécutifs (1 mois à la fois)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "description": "Mois cible au format \"YYYY-MM\" (ex : \"2026-04\"). Optionnel : par défaut, PennyPilot utilise le mois précédent."
+          },
+          "tone": {
+            "type": "string",
+            "enum": [
+              "neutral",
+              "alerting",
+              "concise",
+              "detailed"
+            ],
+            "description": "Ton : neutral (défaut), alerting, concise, detailed."
+          },
+          "dossier_context": {
+            "type": "string",
+            "description": "Contexte cabinet du dossier (1-3 phrases) : activité, modèle B2B/B2C, saisonnalité de la période, particularités comptables, état de saisie. Optionnel : si absent, PennyPilot utilise un contexte auto et indique ses hypothèses."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_revision_triage",
+      "title": "Trier les comptes pour la révision",
+      "description": "Produit un **cockpit de pré-révision** pour le dossier comptable courant Pennylane : checklist d'urgence, points bloquants par cycle (411/401/charges/produits), drafts de demandes client, commentaires de révision pré-rédigés, et audit trail strict.\n\nStrictement **lecture seule** : aucune modification dans Pennylane (pas de lettrage, pas de création d'écriture, pas d'envoi de demande). Le collaborateur copie ce qui l'intéresse dans son dossier de travail.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Prépare la révision de mai\"\n- \"Prépare la pré-révision\"\n- \"Donne-moi le cockpit avant ouverture du dossier\"\n- \"Triage de révision pour T1 2026\"\n- \"Qu'est-ce qui bloque la révision ce mois-ci ?\"\n- \"Liste les blockers révision\"\n\nParamètres :\n- `period` : \"YYYY-MM\" (mois), \"YYYY-Qn\" (trimestre), ou \"YYYY\" (exercice). Défaut : mois précédent.\n- `scope` : \"monthly_review\" (défaut) / \"closing\" / \"supervision\".\n- `materiality_threshold_eur` : seuil de matérialité, défaut 100€.\n- `include_client_requests` : produit la section \"Demandes client préparées\", défaut true.\n- `dossier_context` : contexte d'activité (saisonnalité, multi-établissements, particularités). Si absent, PennyPilot lance une première pré-révision avec contexte auto et hypothèses explicites.\n\nNe PAS utiliser pour :\n- Faire le lettrage automatique (PennyPilot est read-only par conception).\n- Envoyer un message au client (drafts à copier manuellement).\n- La note de synthèse mensuelle finale (utiliser `generate_monthly_close_report`).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "string",
+            "description": "Période comptable. Format : 'YYYY-MM' (mois), 'YYYY-Qn' (trimestre), 'YYYY' (exercice). Défaut : mois précédent."
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "monthly_review",
+              "closing",
+              "supervision"
+            ],
+            "description": "Type de révision. Défaut : monthly_review."
+          },
+          "materiality_threshold_eur": {
+            "type": "number",
+            "description": "Seuil de matérialité en euros. Défaut : 100."
+          },
+          "include_client_requests": {
+            "type": "boolean",
+            "description": "Inclure la section 'Demandes client préparées'. Défaut : true."
+          },
+          "dossier_context": {
+            "type": "string",
+            "description": "Contexte du dossier (activité, saisonnalité, multi-établissements, particularités cabinet). Si non fourni, l'outil demandera confirmation avant analyse."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_dossier_health_check",
+      "title": "Bilan santé d'un dossier comptable",
+      "description": "Produit une **Revue analytique dossier** read-only pour le dossier Pennylane courant : score synthétique, indicateurs manager, alertes prioritaires et audit trail.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Fais la revue analytique du dossier\"\n- \"Prépare la revue analytique\"\n- \"Fais le health check du dossier\"\n- \"Quels sont les risques du dossier ?\"\n- \"Est-ce que le dossier est sain ?\"\n- \"Donne-moi les anomalies principales avant revue manager\"\n- \"Prépare une revue rapide trésorerie / BFR / marge / TVA\"\n\nLa Revue analytique dossier couvre :\n- trésorerie (512/53) ;\n- BFR proxy (411 - 401) ;\n- produits / charges / résultat calculé ;\n- TVA 445 ;\n- dettes fiscales et sociales 43/44 ;\n- comptes d'attente 471/472 ;\n- lettrage 411/401 ;\n- impayés clients et doublons fournisseurs potentiels.\n\nStrictement **lecture seule** : aucune modification dans Pennylane. La sortie sépare constat, pourquoi, source, confiance et action suggérée.\n\nParamètres :\n- `period` : \"YYYY-MM\" (mois), \"YYYY-Qn\" (trimestre), ou \"YYYY\" (exercice). Défaut : mois précédent.\n- `materiality_threshold_eur` : seuil de matérialité, défaut depuis règles cabinet.\n- `dossier_context` : contexte d'activité / saisonnalité / particularités cabinet. Si absent, l'outil lance une première revue avec contexte auto et hypothèses explicites.\n\nNe PAS utiliser pour :\n- Certifier les comptes.\n- Remplacer la pré-révision détaillée (utiliser `generate_revision_triage`).\n- Répondre directement au client final sans validation cabinet.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "period": {
+            "type": "string",
+            "description": "Période comptable. Format : 'YYYY-MM', 'YYYY-Qn', ou 'YYYY'. Défaut : mois précédent."
+          },
+          "materiality_threshold_eur": {
+            "type": "number",
+            "description": "Seuil de matérialité en euros. Défaut : règles cabinet."
+          },
+          "dossier_context": {
+            "type": "string",
+            "description": "Contexte du dossier : activité, saisonnalité, multi-établissements, éléments connus du cabinet."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "prepare_client_communication",
+      "title": "Préparer une communication client",
+      "description": "Prépare 3 variantes de message client (Standard/Urgent/Pédagogique) à partir d'une anomalie comptable détectée, avec citation officielle. PennyPilot n'envoie rien : la décision finale d'envoi reste humaine.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "anomalie": {
+            "type": "string",
+            "description": "Anomalie comptable détectée. Exemple : \"Facture du 12/04/2026 de 2400 EUR sans justificatif (compte 401, fournisseur X)\"."
+          },
+          "context_hints": {
+            "type": "string",
+            "description": "Contexte libre optionnel : relation client, urgence, echeance souhaitee, dossier, ton."
+          },
+          "tone_hint": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "urgent",
+              "pedagogique",
+              "all"
+            ],
+            "default": "all",
+            "description": "Variante souhaitee. Par defaut, retourne les 3 variantes."
+          }
+        },
+        "required": [
+          "anomalie"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "enrich_company_official_profile",
+      "title": "Enrichir le profil officiel d'une société",
+      "description": "Retourne une fiche entreprise officielle (SIREN, NAF, forme juridique, siège, dirigeants disponibles) depuis recherche-entreprises.api.gouv.fr. Si le SIREN est absent, tente de le lire depuis le dossier Pennylane connecté.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "siren": {
+            "type": "string",
+            "description": "SIREN 9 chiffres. Optionnel : si absent, PennyPilot tente de le lire depuis /me Pennylane."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "prepare_rdv_brief",
+      "title": "Préparer le brief d'un rendez-vous client",
+      "description": "Prépare un brief de rendez-vous client : photo financière, état du dossier, points chauds, opportunités de conseil, questions à poser et audit trail. Lecture seule, à valider par l'expert avant usage client.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dossier_context": {
+            "type": "string",
+            "description": "Nom client + contexte du rendez-vous ou particularités du dossier."
+          },
+          "month": {
+            "type": "string",
+            "description": "Mois analysé au format YYYY-MM. Défaut : mois précédent."
+          },
+          "rdv_objectif": {
+            "type": "string",
+            "description": "Objectif du RDV : revue trimestrielle, financement, cession, point cash, etc."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search_bofip",
+      "title": "Rechercher dans le BOFIP (doctrine fiscale)",
+      "description": "Recherche une doctrine BOFiP officielle par mots-clés fiscaux (TVA, IS, CIR, BIC, BNC, TVS). V0.4 : top sections seedées + validation source officielle, sans scraping agressif.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Terme de recherche, ex : \"TVA déductible\", \"DAS-2 honoraires\", \"CIR\"."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "tva",
+              "is",
+              "cir",
+              "tvs",
+              "dsn",
+              "bnc",
+              "bic"
+            ],
+            "description": "Catégorie fiscale optionnelle pour pré-filtrer."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_journals",
+      "title": "Lister les journaux comptables",
+      "description": "Liste **tous les journaux comptables** (livres journaux) du dossier Pennylane : journal des ventes (VE), journal des achats (AC), journal de banque (BQ), journal des opérations diverses (OD), etc. Retourne pour chaque journal son code, son libellé, son type, et un compteur du nombre d'écritures de la période courante si disponible.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Liste les journaux du dossier\"\n- \"Quels sont les codes journaux utilisés ?\"\n- \"Quels journaux sont configurés sur le dossier ?\"\n- \"C'est quoi le code journal VE / AC / BQ ici ?\"\n\nNe PAS utiliser pour :\n- Voir les **écritures** d'un journal précis (utiliser browse_account_ledger ou browse_journal_entries)\n- Le plan comptable (utiliser get_chart_of_accounts)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_chart_of_accounts",
+      "title": "Lire le plan comptable",
+      "description": "Récupère le **plan comptable** (chart of accounts) du dossier Pennylane, groupé par classe PCG (1=capitaux, 2=immobilisations, 3=stocks, 4=tiers, 5=trésorerie, 6=charges, 7=produits). Retourne pour chaque compte son numéro, son libellé, sa classe, et son flag actif/utilisé.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Donne-moi le plan comptable du dossier\"\n- \"Quels comptes 6xxx sont utilisés ?\" / \"Liste les comptes de la classe 5\"\n- \"Le compte 411000 existe-t-il sur ce dossier ?\"\n- \"Comment est ventilé le plan comptable ?\"\n- \"Lister tous les comptes fournisseurs\"\n\nOptionnellement filtrable par préfixe de numéro (ex : \"6\" pour toutes les charges, \"411\" pour comptes clients individuels). Sans filtre, retourne les classes 1-7 résumées + détail classes 4-6-7 (les plus utilisées en exploitation).\n\nNe PAS utiliser pour :\n- Voir les **écritures** d'un compte (utiliser browse_account_ledger)\n- Le solde d'un compte (utiliser get_company_pnl ou browse_account_ledger qui inclut les soldes)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "account_prefix": {
+            "type": "string",
+            "description": "Filtre optionnel sur le préfixe du numéro de compte. Ex : '6' (toutes charges), '60' (achats), '411' (comptes clients individuels), '512' (comptes banques). Sans filtre, vue globale du plan."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "browse_account_ledger",
+      "title": "Parcourir le grand livre d'un compte",
+      "description": "Affiche le **Grand livre d'un compte** sur une période donnée : toutes les écritures du compte avec date, libellé, journal d'origine, débit, crédit et solde courant cumulé. C'est l'équivalent de la vue \"Grand livre\" dans l'interface Pennylane (ou de la consultation d'un compte dans le PCG).\n\nÀ utiliser quand l'utilisateur demande :\n- \"Écritures du compte 411 sur janvier 2026\"\n- \"Grand livre du compte 401 ABCDE sur Q1\"\n- \"Détails du compte 512000 le mois dernier\"\n- \"Toutes les écritures du compte X entre X et Y\"\n- \"Mouvement du compte de banque\"\n\nParamètres :\n- `account_number` (requis) : le numéro de compte exact ou un préfixe sans wildcard (ex : \"411\", \"401000\", \"512100\"). Si plusieurs comptes matchent, on renvoie une erreur explicite.\n- `period_start` (requis) : début période au format ISO date (YYYY-MM-DD).\n- `period_end` (requis) : fin période au format ISO date (YYYY-MM-DD).\n- `aggregate` (optionnel) : si true, renvoie uniquement le **solde net** débit/crédit du compte (ou du préfixe) sur la période, sans lister les écritures. À privilégier pour les questions de type \"combien d'amortissement sur mars ?\" et pour les comptes très volumineux (caisse retail, amortissements ligne à ligne) dont le détail dépasse des dizaines de milliers de lignes.\n\nNe PAS utiliser pour :\n- Le plan comptable (utiliser get_chart_of_accounts)\n- La balance de tous les comptes / par classe (utiliser get_trial_balance)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "account_number": {
+            "type": "string",
+            "description": "Numéro de compte exact ou préfixe (ex : '411', '401000', '512100')."
+          },
+          "period_start": {
+            "type": "string",
+            "description": "Date début ISO YYYY-MM-DD."
+          },
+          "period_end": {
+            "type": "string",
+            "description": "Date fin ISO YYYY-MM-DD."
+          },
+          "aggregate": {
+            "type": "boolean",
+            "description": "Si true, renvoie seulement le solde net (débit/crédit) sans lister les écritures. Recommandé pour les comptes très volumineux ou les questions de solde."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        },
+        "required": [
+          "account_number",
+          "period_start",
+          "period_end"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "find_unlettered_entries",
+      "title": "Trouver les écritures non lettrées",
+      "description": "Liste les **écritures non lettrées** (lettrage en attente) sur les comptes clients (411*) ou fournisseurs (401*) du dossier Pennylane. Renvoie un résumé par compte avec montant en attente, nombre d'écritures, top 20 par ancienneté.\n\nLe lettrage = associer une facture à son règlement (ou plusieurs règlements à plusieurs factures qui se compensent). C'est une tâche répétitive cabinet, qui prend du temps mais qui dégage la lecture des soldes clients / fournisseurs.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Quelles écritures sont en attente de lettrage ?\"\n- \"Liste les comptes clients qui ont du lettrage à faire\"\n- \"Combien d'écritures fournisseurs non lettrées ?\"\n- \"Faut-il lettrer le compte 411 ABCDE ?\"\n- \"Liste les vieilles écritures non lettrées\"\n\nParamètres optionnels :\n- `account_class` : \"customers\" (411*) | \"suppliers\" (401*) | \"both\" (défaut : both).\n- `account_prefix` : préfixe précis de compte tiers (ex : \"411ABC\" ou \"401DUPONT\") pour borner les gros dossiers.\n- `older_than_days` : seuil d'ancienneté minimum en jours (défaut 0).\n\nNe PAS utiliser pour :\n- Voir le détail d'un compte (utiliser browse_account_ledger)\n- Faire le lettrage lui-même (l'API v0.2 de PennyPilot est en lecture seule)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "account_class": {
+            "type": "string",
+            "enum": [
+              "customers",
+              "suppliers",
+              "both"
+            ],
+            "description": "'customers' (411*), 'suppliers' (401*), ou 'both'. Défaut : both."
+          },
+          "older_than_days": {
+            "type": "number",
+            "description": "Filtre les écritures de plus de N jours. Défaut 0 (toutes)."
+          },
+          "account_prefix": {
+            "type": "string",
+            "description": "Préfixe précis de compte tiers pour borner les gros dossiers (ex '411ABC' ou '401DUPONT')."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "browse_journal_entries",
+      "title": "Parcourir les écritures d'un journal",
+      "description": "Liste les **écritures comptables** (ledger entries, pas seulement les lignes) sur une période, optionnellement filtrées par journal. Vue chronologique de l'activité comptable du dossier.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Écritures de mai 2026\"\n- \"Toutes les écritures du journal des ventes en avril\"\n- \"Liste les OD du dernier trimestre\"\n- \"Mouvements comptables sur la période X-Y\"\n- \"Quelles écritures dans le journal de banque ?\"\n\nParamètres :\n- `period_start` (requis) : début période ISO YYYY-MM-DD.\n- `period_end` (requis) : fin période ISO YYYY-MM-DD.\n- `journal_code` (optionnel) : code du journal à filtrer (ex : \"VE\", \"AC\", \"BQ\", \"OD\"). Si absent, toutes les écritures de la période, tous journaux confondus.\n\nNe PAS utiliser pour :\n- Voir les LIGNES d'écriture par compte (utiliser browse_account_ledger)\n- Le détail d'une seule écriture (utiliser get_journal_entry_detail)\n- La liste des journaux configurés (utiliser list_journals)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "period_start": {
+            "type": "string",
+            "description": "Date début ISO YYYY-MM-DD."
+          },
+          "period_end": {
+            "type": "string",
+            "description": "Date fin ISO YYYY-MM-DD."
+          },
+          "journal_code": {
+            "type": "string",
+            "description": "Code journal optionnel : 'VE','AC','BQ','OD',etc."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        },
+        "required": [
+          "period_start",
+          "period_end"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_journal_entry_detail",
+      "title": "Lire le détail d'une écriture comptable",
+      "description": "Récupère le **détail complet d'une écriture comptable** : entête (date, journal, libellé, référence, statut), toutes ses lignes débit/crédit par compte, et informations associées (pièces jointes liées, état de lettrage). Permet l'audit ou la vérification d'une écriture précise.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Détail de l'écriture #X\"\n- \"Vérifie cette écriture (id=...)\"\n- \"Toutes les lignes de l'écriture du 15 mai journal des ventes\"\n- \"Cette écriture est-elle équilibrée ?\"\n\nParamètres :\n- `entry_id` (requis) : l'ID interne Pennylane de l'écriture (colonne \"ID écriture\" dans browse_journal_entries). Ne pas utiliser la référence pièce ou le numéro de facture.\n\nNe PAS utiliser pour :\n- Lister plusieurs écritures (utiliser browse_journal_entries)\n- Voir les écritures d'UN compte sur une période (utiliser browse_account_ledger)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "description": "ID Pennylane de l'écriture comptable (champ \"id\" dans les listes)."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        },
+        "required": [
+          "entry_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "audit_recent_changes",
+      "title": "Auditer les modifications comptables récentes",
+      "description": "Audit trail : liste les **modifications récentes** apportées aux écritures comptables (créations, mises à jour, suppressions de lignes d'écriture). Utile pour le contrôle interne, la conformité, ou un audit qualité du dossier.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Quelles écritures ont été modifiées récemment ?\"\n- \"Qui a touché à la compta ces 7 derniers jours ?\"\n- \"Audit des modifications de la semaine\"\n- \"Y a-t-il eu des suppressions d'écritures ?\"\n- \"Liste les changements depuis X\"\n\nParamètre :\n- `since_days` (optionnel) : nombre de jours en arrière à examiner. Défaut 7. Max recommandé 90.\n\nNe PAS utiliser pour :\n- Voir le détail d'une écriture (utiliser get_journal_entry_detail)\n- Modifier une écriture (PennyPilot v0.2 est en lecture seule)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "since_days": {
+            "type": "number",
+            "description": "Nombre de jours en arrière. Défaut 7. Max 90."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "audit_invoice_changes",
+      "title": "Radar activité factures (changelogs)",
+      "description": "Liste les **événements récents sur les factures** (clients et fournisseurs) : insertions, modifications, suppressions. Radar d'activité pour savoir ce qui a bougé sur la facturation depuis la dernière revue.\n\n⚠️ **C'EST le changelog officiel Pennylane v2** (`GET /changelogs/customer_invoices` + `/changelogs/supplier_invoices`). Fenêtre limitée à **4 semaines** côté Pennylane. **NE PAS rediriger vers Pennylane natif.**\n\nÀ utiliser quand l'utilisateur demande :\n- \"Qu'est-ce qui a bougé sur les factures cette semaine ?\"\n- \"Y a-t-il eu des suppressions de factures récemment ?\"\n- \"Combien de factures créées / modifiées depuis lundi ?\"\n- \"Radar d'activité facturation\"\n\nParamètre :\n- `since_days` (optionnel) : nombre de jours en arrière. Défaut 7. **Max 28** (limite Pennylane).\n\nRetourne : volumétrie par type de facture et par opération (insertion/modification/suppression), sur la fenêtre demandée.\n\nNE PAS utiliser pour :\n- Le détail d'une facture (utiliser get_invoice_detail).\n- Les impayés (utiliser find_unpaid_customer_invoices).\n- Les modifications d'écritures comptables (utiliser audit_recent_changes).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "since_days": {
+            "type": "number",
+            "description": "Jours en arrière. Défaut 7. Max 28 (limite Pennylane)."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "diagnose_einvoicing_readiness",
+      "title": "Diagnostic e-facturation 2026",
+      "description": "Diagnostique la **maturité e-facturation** du dossier au regard de la réforme française de la facture électronique (2026) : inscriptions aux plateformes agréées (PA / PDP), par établissement, avec statut et sens d'échange.\n\n⚠️ **C'EST le diagnostic officiel via l'API Pennylane v2** (`GET /pa_registrations`). **NE PAS rediriger vers Pennylane natif.**\n\nÀ utiliser quand l'utilisateur demande :\n- \"Où en est le dossier sur la facture électronique 2026 ?\"\n- \"Le client est-il inscrit à une plateforme agréée ?\"\n- \"Diagnostic e-invoicing / PDP / réforme facture électronique\"\n- \"Quels établissements ne sont pas encore inscrits ?\"\n\nNe prend aucun paramètre, retourne toutes les inscriptions du dossier.\n\nRetourne : inscriptions par établissement (siret / siège), statut (pending/activated/provisioned/draft), sens d'échange (émission/réception/les deux), et synthèse de maturité.\n\nNE PAS utiliser pour : générer ou envoyer une facture (PennyPilot est read-only).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_mandates_and_subscriptions",
+      "title": "Radar mandats & abonnements",
+      "description": "Radar compact des **mandats de prélèvement** (SEPA, Pro Account) et des **abonnements de facturation récurrente** du dossier. Utile pour les cabinets en gestion locative, abonnements, ou tout dossier à revenus récurrents.\n\n⚠️ **C'EST le radar officiel via l'API Pennylane v2** (`/sepa_mandates`, `/pro_account/mandates`, `/billing_subscriptions`). **NE PAS rediriger vers Pennylane natif.** Les IBAN sont **masqués** (4 derniers caractères), aucune donnée bancaire complète n'est exposée.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Liste les mandats de prélèvement SEPA\"\n- \"Quels abonnements récurrents sont actifs ?\"\n- \"Radar des prélèvements / revenus récurrents\"\n- \"Combien de mandats signés ?\"\n\nNe prend aucun paramètre.\n\nRetourne : synthèse mandats SEPA (masqués) + mandats Pro Account + abonnements récurrents avec statut et prochaine échéance.\n\nNE PAS utiliser pour : créer/modifier un mandat ou un abonnement (PennyPilot est read-only).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_fiscal_years",
+      "title": "Lister les exercices fiscaux",
+      "description": "Liste les **exercices comptables** (fiscal years) du dossier Pennylane avec leur date de début, date de fin, et statut (ouvert / clos / en cours de clôture). Utile pour cadrer les périodes de travail (clôture annuelle, comparatif N-1, balance d'ouverture…).\n\nÀ utiliser quand l'utilisateur demande :\n- \"Liste les exercices comptables\"\n- \"Quand commence l'exercice en cours ?\"\n- \"Quel est l'exercice précédent ?\"\n- \"Y a-t-il un exercice ouvert ?\"\n- \"Date de clôture du dernier exercice\"\n- \"Combien d'exercices archivés sur le dossier ?\"\n\nNe prend aucun paramètre, retourne tous les exercices configurés.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company": {
+            "type": "string",
+            "description": "Optionnel : Nom ou ID de la société Pennylane à cibler (mode cabinet uniquement)."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_firm_companies",
+      "title": "Lister les dossiers du portefeuille cabinet (Firm)",
+      "description": "Liste les **sociétés du portefeuille cabinet** (uniquement disponible en mode cabinet Firm Token). Utile pour identifier l'ID ou le nom exact d'un dossier client à analyser.\n\nÀ utiliser quand l'utilisateur demande :\n- \"Liste les sociétés de mon portefeuille\"\n- \"Quels dossiers clients sont connectés ?\"\n- \"Liste les clients de mon cabinet\"\n- \"Trouve le dossier HAPPYPAL\"\n\nNe prend aucun paramètre.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "send_feedback_to_holco",
+      "title": "Envoyer un retour à l'équipe HOLCO",
+      "description": "Transmet un **retour, signalement de bug, idée d'amélioration ou commentaire** à l'équipe HOLCO. Le message est archivé côté serveur HOLCO et déclenche immédiatement une notification email à l'équipe pendant la phase pilote.\n\nÀ utiliser EXACTEMENT quand l'utilisateur :\n- Tape **\"@holco\"** dans son message (avec une suite indiquant ce qu'il veut transmettre)\n- Dit \"signale ce bug à HOLCO\", \"envoie un feedback à l'équipe\", \"j'ai une idée pour PennyPilot\"\n- Décrit un comportement inattendu ET demande explicitement à le rapporter\n- Demande \"transmet à HOLCO …\" ou \"fais remonter cette info à l'équipe\"\n\nParamètres :\n- `message` (requis) : le retour de l'utilisateur, en clair, en français. Reformuler/synthétiser si l'user a tapé \"@holco la note de synthèse est buggée\" → \"La note de synthèse présente un bug : …\"\n- `category` (optionnel) : \"bug\" | \"feature_request\" | \"comment\" | \"question\", détecter depuis le ton. Bug si l'user signale un dysfonctionnement, feature_request si suggestion, question si demande de clarification, comment sinon. Défaut : \"comment\".\n- `context_summary` (optionnel) : 1-2 phrases de contexte (ex : \"Bug constaté en générant la note de synthèse sur dossier retail X, CA ressort à 0 alors que les ventes existent\"). **NE PAS** inclure de chiffres précis du dossier (montants, n° de comptes individuels), juste le contexte fonctionnel.\n\nNE PAS utiliser :\n- Pour répondre à une question de l'utilisateur (réponds normalement avec les autres outils)\n- Pour de l'analyse comptable (utiliser les outils Grand livre)\n- Sans demande explicite (ne pas \"transmettre\" un échange normal)\n\nAprès envoi, le tool retourne une référence `fb-XXX` que tu peux mentionner à l'utilisateur pour traçabilité.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Le retour utilisateur, reformulé en clair si nécessaire."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "bug",
+              "feature_request",
+              "comment",
+              "question"
+            ],
+            "description": "Type de feedback détecté."
+          },
+          "context_summary": {
+            "type": "string",
+            "description": "1-2 phrases de contexte fonctionnel (sans données sensibles)."
+          },
+          "company_id": {
+            "type": "string",
+            "description": "Mode cabinet (Firm Token) : identifiant du dossier Pennylane à analyser (obtenu via list_firm_companies). Ignoré en mode dossier unique (token Company)."
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    }
+  ]
+}
