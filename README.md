@@ -2,7 +2,18 @@
 
 PennyPilot est un connecteur [MCP](https://modelcontextprotocol.io) édité par **HOLCO** qui permet aux experts-comptables et à leurs équipes d'interroger en langage naturel leurs dossiers **Pennylane** depuis un assistant IA (Claude, ChatGPT, Le Chat).
 
-Ce dépôt publie, par transparence, le **catalogue public des outils** et la documentation du connecteur. L'implémentation du serveur reste propriétaire.
+Ce dépôt publie, par transparence, le **catalogue public des outils de lecture** et la documentation du connecteur. L'implémentation du serveur, les moteurs de révision et la mémoire du cabinet restent propriétaires.
+
+## Révision assistée
+
+Au-delà de la lecture, PennyPilot aide à **réviser** un dossier en langage métier :
+
+- **Révision guidée** : en une demande, le collaborateur obtient une liste d'écarts priorisés par sévérité (cadrage TVA, cut-off, provisions, amortissements, trésorerie, lettrage), chacun qualifié (cause probable, pièce à regarder, comptes concernés).
+- **Doctrine vérifiée** : chaque point cite la source officielle (Légifrance, BOFiP) dans la version en vigueur à la date d'arrêté.
+- **Mémoire du cabinet** : une décision tranchée une fois est réappliquée au passage suivant et n'est plus resignalée, avec traçabilité (qui, quand, source). La révision ne repart pas de zéro à chaque clôture.
+- **Lecture seule de bout en bout** : PennyPilot propose, le cabinet tranche dans son outil comptable.
+
+Ces capacités s'opèrent côté serveur (propriétaire) ; ce dépôt n'en publie que le principe, pas l'implémentation.
 
 ## Principe
 
