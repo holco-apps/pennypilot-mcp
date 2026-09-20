@@ -2,7 +2,7 @@
 
 PennyPilot est un connecteur [MCP](https://modelcontextprotocol.io) édité par **HOLCO** qui permet aux experts-comptables et à leurs équipes d'interroger en langage naturel leurs dossiers **Pennylane** depuis un assistant IA (Claude, ChatGPT, Le Chat).
 
-Ce dépôt publie, par transparence, le **catalogue public des outils** et la documentation du connecteur. L'implémentation du serveur reste propriétaire.
+Ce dépôt publie, par transparence, le **catalogue public des outils** et la documentation du connecteur. L'implémentation du serveur reste propriétaire. Le contenu de ce dépôt (catalogue et documentation) est sous [licence MIT](LICENSE) ; la licence ne couvre pas le serveur.
 
 ## Principe
 
